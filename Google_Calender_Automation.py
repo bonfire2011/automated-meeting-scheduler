@@ -9,13 +9,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 absent_senders_df = pd.read_csv(ABSENT_CSV)
 start_date = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-end_date = start_date + timedelta(weeks=1)
-
-
-all_dates_dt = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
-
-
-all_dates_mmdd = [d.strftime("%m/%d") for d in all_dates_dt]
 
 
 available_dates = {}
@@ -28,9 +21,9 @@ for sender, group in absent_senders_df.groupby("Sender"):
     
 
     if not absent_dates.empty:
-        individual_end_date = max(absent_dates.max(), start_date + timedelta(weeks=1))
+        individual_end_date = max(absent_dates.max(), start_date + timedelta(days=6))
     else:
-        individual_end_date = start_date + timedelta(weeks=1)
+        individual_end_date = start_date + timedelta(days=6)
 
 
     all_dt = [start_date + timedelta(days=i) for i in range((individual_end_date - start_date).days + 1)]
