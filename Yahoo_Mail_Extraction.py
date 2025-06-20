@@ -5,10 +5,11 @@ from datetime import datetime, timezone, timedelta
 import os
 
 
-YESTERDAY = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%d-%b-%Y")
-FILENAME = f"yahoo_emails_{YESTERDAY}.csv"
+YESTERDAY = (datetime.now() - timedelta(days=1)).strftime("%d-%b-%Y")
+TODAY = datetime.now().strftime("%d-%b-%Y")
+FILENAME = f"yahoo_emails_received_on_{YESTERDAY}.csv"
 
-ALL_EMAIL_PATH = "yahoo_all_emails.csv"
+ALL_EMAIL_PATH = "yahoo_emails_all.csv"
 
 
 
@@ -29,7 +30,7 @@ mail.login(EMAIL, ONE_TIME_PASSWORD)
 mail.select(mailbox="INBOX")
 
 #status, messages = mail.search(None, "ALL")
-status, messages = mail.search(None, f'(SINCE "{YESTERDAY}")')
+status, messages = mail.search(None, f'(SINCE "{YESTERDAY}" BEFORE "{TODAY}")')
 
 email_ids = messages[0].split()
 

@@ -24,11 +24,11 @@ for sender, group in absent_senders_df.groupby("Sender"):
     # Parse and normalize absent dates
     absent_mmdd = set(group["Individual_Absent_Date"])
     absent_dates = pd.to_datetime(list(absent_mmdd), format="%m/%d", errors="coerce").dropna()
-    absent_dates = absent_dates.apply(lambda d: d.replace(year=datetime.today().year))
+    absent_dates = pd.to_datetime([d.replace(year=datetime.today().year) for d in absent_dates])
     
 
     if not absent_dates.empty:
-        individual_end_date = max(absent_dates.max() + timedelta(days=3), start_date + timedelta(weeks=1))
+        individual_end_date = max(absent_dates.max(), start_date + timedelta(weeks=1))
     else:
         individual_end_date = start_date + timedelta(weeks=1)
 

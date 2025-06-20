@@ -1,13 +1,13 @@
 import pandas as pd
 from openai import OpenAI
-from Yahoo_Mail_Extraction import FILENAME, YESTERDAY
+from Yahoo_Mail_Extraction import FILENAME, YESTERDAY, TODAY
 from datetime import datetime, timedelta
 import re
 from Absence_CSV_Format import format_absence_dates
 #from filter_emails_by_date import filter_emails_by_date
 
 
-ABSENT_CSV = f"Absent_On_{YESTERDAY}.csv"
+ABSENT_CSV = f"absent_emails_received_on_{YESTERDAY}.csv"
 
 
 df_emails = pd.read_csv(FILENAME)
@@ -24,7 +24,7 @@ df_emails["Date_only"] = pd.to_datetime(df_emails["Date_only"], errors='coerce')
 client = OpenAI(api_key="")
 
 absent_senders = []
-prompt1 = "Is the sender notifying the recipient that they will be absent or unavailable (Absent Notice)? Answer only 'Yes' or 'No'."
+prompt1 = "Is the sender notifying the recipient that they will be absent or unavailable (e.g., Absent Notice)? Answer only 'Yes' or 'No'."
 prompt0 = "Is the sender notifying the recipient that they will be absent or unavailable (e.g., vacation, sick leave, out-of-office)? Answer only 'Yes' or 'No'."
 
 prompt2 = (
@@ -51,7 +51,7 @@ for i, row in df_emails.iterrows():
     response1 = client.chat.completions.create(
     model="gpt-4.1",
     messages=[
-        {"role": "system", "content": prompt1},
+        {"role": "system", "content": prompt0},
         {"role": "user", "content": body}
         ]
     )
@@ -84,6 +84,7 @@ for i, row in df_emails.iterrows():
 absent_senders_df = pd.DataFrame(absent_senders)
 absent_senders_df["Individual_Absent_Date"] = absent_senders_df.apply(lambda row: format_absence_dates(row["Absent_On"], row["Sent"]), axis=1)
 absent_senders_df_formatted = absent_senders_df.explode("Individual_Absent_Date")
+absent_senders_df_formatted = absent_senders_df_formatted.sort_values(by = ["Individual_Absent_Date"])
 
 
 pd.DataFrame(absent_senders_df_formatted).to_csv(ABSENT_CSV, index = False)
